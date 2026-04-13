@@ -62,7 +62,7 @@ const config = {
           ],
         },
         sitemap: {
-          ignorePatterns: ['/search', '/search/**', '/self-hosting/_dev-only-warning'],
+          ignorePatterns: ['/search', '/search/**', '/self-hosting/_dev-only-warning', '/CLAUDE'],
         },
         blog: false,
         theme: {

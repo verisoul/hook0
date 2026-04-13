@@ -49,7 +49,7 @@ locals.seo = {
   siteUrl: 'https://www.hook0.com',
   siteName: 'Hook0',
   defaultTitle: 'Hook0 — Free Open-Source Webhook Platform | Webhooks as a Service',
-  defaultDescription: 'Free webhook service, open-source. Send webhooks with one API call — Hook0 handles retries, HMAC signatures, and delivery monitoring. No credit card, self-host or cloud.',
+  defaultDescription: 'Free webhook platform, open-source. Send webhooks with one API call — Hook0 handles retries, HMAC signatures, and delivery monitoring. Free forever, no credit card. Self-host or use our cloud.',
   defaultImage: '/mediakit/logo/1920x1920-banner.png',
   twitterHandle: '@hook0_',
   locale: 'en_US',

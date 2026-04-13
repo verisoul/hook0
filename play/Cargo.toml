@@ -57,6 +57,12 @@ url = "2.5"
 # Concurrent data structures
 dashmap = "6.1"
 
+# Redis storage backend
+redis = { version = "0.27", features = ["tokio-comp", "connection-manager"] }
+
+# Async trait support
+async-trait = "0.1"
+
 # Reqwest for forwarding (when not using WebSocket)
 reqwest = { version = "0.12", features = ["json"], default-features = false }
 
