@@ -135,7 +135,6 @@ play.smoke-test:
   dependencies: []
   needs:
     - job: play.deploy
-      optional: true
   image: alpine:$ALPINE_VERSION
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
