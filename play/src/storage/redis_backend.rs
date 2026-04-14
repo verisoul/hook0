@@ -156,11 +156,9 @@ impl RedisStorage {
             .unwrap_or_default();
         let body = fields.get("body").cloned().unwrap_or_default();
         let body_raw_b64 = fields.get("body_raw").cloned().unwrap_or_default();
-        let body_raw = base64::Engine::decode(
-            &base64::engine::general_purpose::STANDARD,
-            &body_raw_b64,
-        )
-        .unwrap_or_default();
+        let body_raw =
+            base64::Engine::decode(&base64::engine::general_purpose::STANDARD, &body_raw_b64)
+                .unwrap_or_default();
         let body_size = fields
             .get("body_size")
             .and_then(|s| s.parse::<usize>().ok())
@@ -443,7 +441,8 @@ impl WebhookStorageBackend for RedisStorage {
         let key = Self::webhook_key(token, webhook_id);
 
         let response_json = serde_json::to_string(&response).unwrap_or_default();
-        let result: Result<(), redis::RedisError> = conn.hset(&key, "response", &response_json).await;
+        let result: Result<(), redis::RedisError> =
+            conn.hset(&key, "response", &response_json).await;
         if let Err(e) = result {
             error!(
                 "Redis: failed to store response for {}:{}: {}",
@@ -488,9 +487,8 @@ impl WebhookStorageBackend for RedisStorage {
         }
 
         // Ensure created_at exists (set if not present via HSETNX in a separate call)
-        let _: Result<bool, redis::RedisError> = conn
-            .hset_nx(&key, "created_at", now.to_rfc3339())
-            .await;
+        let _: Result<bool, redis::RedisError> =
+            conn.hset_nx(&key, "created_at", now.to_rfc3339()).await;
 
         let result: Result<(), redis::RedisError> = redis::pipe()
             .hset_multiple(&key, &fields)
@@ -537,8 +535,7 @@ impl WebhookStorageBackend for RedisStorage {
         let mut conn = self.conn.clone();
         let key = Self::session_key(token);
 
-        let result: Result<Option<String>, redis::RedisError> =
-            conn.hget(&key, "connected").await;
+        let result: Result<Option<String>, redis::RedisError> = conn.hget(&key, "connected").await;
 
         match result {
             Ok(Some(val)) => val == "true",
@@ -600,7 +597,10 @@ impl WebhookStorageBackend for RedisStorage {
         let ids: Vec<String> = match conn.lrange(&list_key, 0, -1).await {
             Ok(ids) => ids,
             Err(e) => {
-                error!("Redis: failed to list webhooks for deletion {}: {}", token, e);
+                error!(
+                    "Redis: failed to list webhooks for deletion {}: {}",
+                    token, e
+                );
                 return 0;
             }
         };
@@ -609,14 +609,14 @@ impl WebhookStorageBackend for RedisStorage {
 
         if count > 0 {
             // Delete all webhook hashes
-            let keys: Vec<String> = ids
-                .iter()
-                .map(|id| Self::webhook_key(token, id))
-                .collect();
+            let keys: Vec<String> = ids.iter().map(|id| Self::webhook_key(token, id)).collect();
 
             let result: Result<(), redis::RedisError> = conn.del(&keys).await;
             if let Err(e) = result {
-                error!("Redis: failed to delete webhook hashes for {}: {}", token, e);
+                error!(
+                    "Redis: failed to delete webhook hashes for {}: {}",
+                    token, e
+                );
             }
 
             // Delete the list itself
@@ -749,8 +749,14 @@ mod tests {
     #[test]
     fn test_serialize_headers_special_characters() {
         let mut headers = HashMap::new();
-        headers.insert("key".to_string(), "value with \"quotes\" and \\slashes".to_string());
-        headers.insert("unicode".to_string(), "valeur avec des accents: e\u{0301}".to_string());
+        headers.insert(
+            "key".to_string(),
+            "value with \"quotes\" and \\slashes".to_string(),
+        );
+        headers.insert(
+            "unicode".to_string(),
+            "valeur avec des accents: e\u{0301}".to_string(),
+        );
 
         let serialized = RedisStorage::serialize_headers(&headers);
         let deserialized = RedisStorage::deserialize_headers(&serialized);

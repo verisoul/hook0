@@ -1791,7 +1791,10 @@ async fn test_webhook_ttl_cleanup() {
     tokio::time::sleep(Duration::from_millis(200)).await;
 
     // Manually trigger cleanup (background task interval is too long for tests)
-    let removed = state.storage.cleanup_expired(Duration::from_millis(100)).await;
+    let removed = state
+        .storage
+        .cleanup_expired(Duration::from_millis(100))
+        .await;
     assert!(removed > 0, "Should have cleaned up expired webhooks");
 
     // Verify it's gone
@@ -2047,7 +2050,10 @@ async fn test_e2e_generate_token_post_webhook_verify_via_api() {
         .expect("POST webhook failed");
 
     assert_eq!(post_response.status(), 200);
-    let post_body: Value = post_response.json().await.expect("Failed to parse POST response");
+    let post_body: Value = post_response
+        .json()
+        .await
+        .expect("Failed to parse POST response");
     assert_eq!(post_body["status"], "stored");
 
     // Verify via API
@@ -2058,7 +2064,10 @@ async fn test_e2e_generate_token_post_webhook_verify_via_api() {
         .expect("GET webhooks API failed");
 
     assert_eq!(api_response.status(), 200);
-    let api_body: Value = api_response.json().await.expect("Failed to parse API response");
+    let api_body: Value = api_response
+        .json()
+        .await
+        .expect("Failed to parse API response");
 
     let webhooks = api_body["webhooks"]
         .as_array()
@@ -2074,11 +2083,9 @@ async fn test_e2e_generate_token_post_webhook_verify_via_api() {
 
     // The body is base64-encoded in the stored webhook; decode and verify
     let stored_body_b64 = stored["body"].as_str().expect("body should be a string");
-    let decoded_bytes = base64::Engine::decode(
-        &base64::engine::general_purpose::STANDARD,
-        stored_body_b64,
-    )
-    .expect("Failed to decode base64 body");
+    let decoded_bytes =
+        base64::Engine::decode(&base64::engine::general_purpose::STANDARD, stored_body_b64)
+            .expect("Failed to decode base64 body");
     let decoded_body: Value =
         serde_json::from_slice(&decoded_bytes).expect("Failed to parse decoded body as JSON");
     assert_eq!(decoded_body["event"], "order.created");
@@ -2144,7 +2151,10 @@ async fn test_content_negotiation_json_accept_returns_json() {
         "Expected application/json content-type, got: {}",
         content_type
     );
-    let body: Value = response.json().await.expect("Response should be valid JSON");
+    let body: Value = response
+        .json()
+        .await
+        .expect("Response should be valid JSON");
     assert_eq!(body["name"], "Hook0 Play");
     assert!(body["description"].is_string());
     assert!(body["docs"].is_string());

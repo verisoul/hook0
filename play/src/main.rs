@@ -90,9 +90,7 @@ async fn main() {
         }
         None => {
             info!("Storage backend: in-memory");
-            StorageBackend::InMemory(InMemoryStorage::with_limits(
-                limits.max_webhooks_per_token,
-            ))
+            StorageBackend::InMemory(InMemoryStorage::with_limits(limits.max_webhooks_per_token))
         }
     };
 

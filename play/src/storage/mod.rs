@@ -302,10 +302,7 @@ impl WebhookStorageBackend for StorageBackend {
         }
     }
 
-    async fn find_timed_out_sessions(
-        &self,
-        session_timeout: std::time::Duration,
-    ) -> Vec<String> {
+    async fn find_timed_out_sessions(&self, session_timeout: std::time::Duration) -> Vec<String> {
         match self {
             Self::InMemory(s) => s.find_timed_out_sessions(session_timeout).await,
             Self::Redis(s) => s.find_timed_out_sessions(session_timeout).await,

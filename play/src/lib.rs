@@ -50,14 +50,18 @@ impl AppState {
 
     /// Create a new application state with custom limits and in-memory storage
     pub fn with_limits(base_url: String, limits: ServerLimits) -> Self {
-        let storage = StorageBackend::InMemory(
-            storage::InMemoryStorage::with_limits(limits.max_webhooks_per_token),
-        );
+        let storage = StorageBackend::InMemory(storage::InMemoryStorage::with_limits(
+            limits.max_webhooks_per_token,
+        ));
         Self::with_storage(base_url, limits, storage)
     }
 
     /// Create a new application state with an explicit storage backend
-    pub fn with_storage(base_url: String, limits: ServerLimits, mut storage: StorageBackend) -> Self {
+    pub fn with_storage(
+        base_url: String,
+        limits: ServerLimits,
+        mut storage: StorageBackend,
+    ) -> Self {
         // Enable encryption if configured
         if limits.enable_encryption {
             let key = limits
@@ -238,13 +242,22 @@ async fn serve_index(
 
     let mut response = (StatusCode::OK, html).into_response();
     let headers = response.headers_mut();
-    headers.insert(header::CONTENT_TYPE, header::HeaderValue::from_static("text/html; charset=utf-8"));
+    headers.insert(
+        header::CONTENT_TYPE,
+        header::HeaderValue::from_static("text/html; charset=utf-8"),
+    );
     if let Ok(csp_value) = header::HeaderValue::from_str(&csp) {
         headers.insert("Content-Security-Policy", csp_value);
     }
-    headers.insert("X-Content-Type-Options", header::HeaderValue::from_static("nosniff"));
+    headers.insert(
+        "X-Content-Type-Options",
+        header::HeaderValue::from_static("nosniff"),
+    );
     headers.insert("X-Frame-Options", header::HeaderValue::from_static("DENY"));
-    headers.insert("Referrer-Policy", header::HeaderValue::from_static("strict-origin-when-cross-origin"));
+    headers.insert(
+        "Referrer-Policy",
+        header::HeaderValue::from_static("strict-origin-when-cross-origin"),
+    );
     response
 }
 

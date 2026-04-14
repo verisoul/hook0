@@ -216,7 +216,10 @@ async fn handle_socket(socket: WebSocket, state: Arc<AppState>, client_ip: Strin
 
                 // Register the connection
                 state.connections.insert(token.clone(), tx.clone());
-                state.storage.set_connected(&token, Some(client_ip.clone())).await;
+                state
+                    .storage
+                    .set_connected(&token, Some(client_ip.clone()))
+                    .await;
                 connected_token = Some(token.clone());
                 handshake_completed = true;
 
