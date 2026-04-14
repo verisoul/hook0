@@ -31,6 +31,57 @@ play.e2e:
     - cargo build -p hook0-cli
     - cargo test -p hook0-cli --test e2e_hooks -- --nocapture
 
+play.e2e-playwright:
+  stage: test
+  dependencies: []
+  image: mcr.microsoft.com/playwright:v1.49.1-noble
+  extends: .rust-cache-pull-only
+  rules:
+    - changes:
+        - play/**/*
+        - tests-e2e/tests/play/**/*
+        - tests-e2e/playwright.play.config.ts
+        - Cargo.*
+  before_script:
+    - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain $RUST_VERSION
+    - export PATH="$HOME/.cargo/bin:$PATH"
+    - rustc --version && cargo --version
+    - cd tests-e2e && npm ci && cd ..
+  script:
+    # Build and start play server in background
+    - cargo build -p hook0-play --release
+    - HOOKS_BASE_URL=http://localhost:3030 ./target/release/hook0-play &
+    # Wait for play server to be ready
+    - |
+      echo "Waiting for play server..."
+      for i in $(seq 1 30); do
+        if curl -sf http://localhost:3030/health -o /dev/null 2>&1; then
+          echo "Play server is ready!"
+          break
+        fi
+        echo "Waiting... ($i/30)"
+        sleep 2
+        if [ $i -eq 30 ]; then
+          echo "ERROR: Play server failed to start"
+          exit 1
+        fi
+      done
+    # Run Playwright E2E tests for play
+    - cd tests-e2e
+    - PLAY_BASE_URL=http://localhost:3030 CI=true npx playwright test --config playwright.play.config.ts --project=chromium
+  artifacts:
+    when: always
+    paths:
+      - tests-e2e/playwright-report-play/
+      - tests-e2e/test-results/
+    reports:
+      junit: tests-e2e/test-results/play-junit.xml
+    expire_in: 30 days
+  cache:
+    key: playwright-play-${CI_COMMIT_REF_SLUG}
+    paths:
+      - tests-e2e/node_modules/
+
 play.docker:
   stage: build
   dependencies: []
