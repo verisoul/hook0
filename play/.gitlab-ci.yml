@@ -121,6 +121,7 @@ play.deploy:
       changes:
         - play/**/*
         - Cargo.*
+      when: manual
   environment:
     name: production
     url: https://play.hook0.com
