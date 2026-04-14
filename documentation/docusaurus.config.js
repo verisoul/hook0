@@ -194,6 +194,12 @@ const config = {
           },
           // Right side
           {
+            href: "https://play.hook0.com",
+            label: "Play",
+            position: "right",
+            className: "navbar__item--no-external-icon",
+          },
+          {
             href: "mailto:support@hook0.com",
             label: "Contact",
             position: "right",

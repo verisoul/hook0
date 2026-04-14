@@ -278,6 +278,7 @@ locals.footerLinks = {
       { label: 'Source Code', href: locals.social.github.repoHref, icon: 'github' },
       { label: 'Status Page', href: 'https://status.hook0.com', icon: 'status' },
       { label: 'Self-hosting', href: 'https://documentation.hook0.com/self-hosting/docker-compose', docPath: '/self-hosting/docker-compose', icon: 'server' },
+      { label: 'Webhook Tester', href: 'https://play.hook0.com', icon: 'bolt' },
     ],
   },
   community: {

@@ -138,7 +138,30 @@ button{font-family:inherit;cursor:pointer;border:none;background:transparent}
 .site-header .logo{display:flex;align-items:center;gap:8px;color:var(--color-text-primary);text-decoration:none;font-weight:700;font-size:16px}
 .site-header .logo svg{width:28px;height:28px;flex-shrink:0}
 .site-header .logo span{opacity:.5;font-weight:400;margin-left:2px}
+.header-nav{display:flex;align-items:center;gap:4px}
+.header-nav a{color:var(--color-text-secondary);text-decoration:none;padding:6px 10px;border-radius:var(--radius-lg);font-size:14px;font-weight:500;transition:color .15s,background .15s}
+.header-nav a:hover{color:var(--color-text-primary);background:var(--color-bg-tertiary);text-decoration:none}
+.header-sep{width:1px;height:20px;background:var(--color-border);margin:0 4px;flex-shrink:0}
+.header-auth{display:flex;align-items:center;gap:6px}
+.header-auth .btn-ghost{color:var(--color-text-secondary);font-size:14px;font-weight:500}
+.header-auth .btn-cta{background:var(--color-primary);color:#fff;padding:6px 14px;border-radius:var(--radius-lg);font-size:14px;font-weight:600;transition:background .15s;text-decoration:none;display:inline-flex;align-items:center;white-space:nowrap}
+.header-auth .btn-cta:hover{background:var(--color-primary-hover);text-decoration:none}
 .header-actions{display:flex;align-items:center;gap:8px;margin-left:auto}
+.mobile-menu-btn{display:none;align-items:center;justify-content:center;width:36px;height:36px;border-radius:var(--radius-lg);background:transparent;color:var(--color-text-secondary);cursor:pointer;border:none;transition:color .15s,background .15s}
+.mobile-menu-btn:hover{color:var(--color-text-primary);background:var(--color-bg-tertiary)}
+.mobile-menu-btn span{display:flex;flex-direction:column;gap:4px;width:18px}
+.mobile-menu-btn span i{display:block;height:2px;background:currentColor;border-radius:1px}
+.mobile-menu{display:none;position:absolute;top:100%;right:0;left:0;background:var(--color-bg-secondary);border-bottom:1px solid var(--color-border);padding:12px 20px;z-index:50;box-shadow:var(--shadow-lg)}
+.mobile-menu.open{display:flex;flex-direction:column;gap:4px}
+.mobile-menu a,.mobile-menu .btn-ghost{display:block;padding:10px 12px;border-radius:var(--radius-lg);color:var(--color-text-secondary);text-decoration:none;font-size:14px;font-weight:500;transition:color .15s,background .15s}
+.mobile-menu a:hover,.mobile-menu .btn-ghost:hover{color:var(--color-text-primary);background:var(--color-bg-tertiary);text-decoration:none}
+.mobile-menu .btn-cta{display:block;text-align:center;background:var(--color-primary);color:#fff;padding:10px 14px;border-radius:var(--radius-lg);font-size:14px;font-weight:600;text-decoration:none;margin-top:4px;transition:background .15s}
+.mobile-menu .btn-cta:hover{background:var(--color-primary-hover);text-decoration:none}
+.mobile-menu .mobile-sep{height:1px;background:var(--color-border);margin:4px 0}
+@media(max-width:767px){
+.header-nav,.header-auth,.header-sep{display:none}
+.mobile-menu-btn{display:flex}
+}
 
 .conn-status{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--color-text-secondary);padding:4px 10px;border-radius:var(--radius-full);background:var(--color-bg-tertiary)}
 .conn-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
@@ -239,10 +262,15 @@ button{font-family:inherit;cursor:pointer;border:none;background:transparent}
 .seo-content summary{padding:12px 16px;font-weight:600;color:var(--color-text-primary);cursor:pointer;font-size:15px}
 .seo-content details>div{padding:0 16px 12px}
 
-.site-footer{border-top:1px solid var(--color-border);padding:20px;text-align:center;font-size:13px;color:var(--color-text-tertiary);background:var(--color-bg-secondary)}
-.site-footer nav{display:flex;justify-content:center;gap:16px;flex-wrap:wrap;margin-bottom:8px}
-.site-footer a{color:var(--color-text-secondary)}
-.site-footer a:hover{color:var(--color-text-primary)}
+.site-footer{border-top:1px solid var(--color-border);padding:40px 20px 24px;background:var(--color-bg-secondary);font-size:13px;color:var(--color-text-tertiary)}
+.footer-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:32px;max-width:800px;margin:0 auto 24px}
+@media(max-width:600px){.footer-grid{grid-template-columns:1fr;gap:24px}}
+.footer-col h4{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--color-text-secondary);margin-bottom:10px}
+.footer-col a{display:block;color:var(--color-text-secondary);text-decoration:none;padding:3px 0;font-size:13px;transition:color .15s}
+.footer-col a:hover{color:var(--color-text-primary);text-decoration:none}
+.footer-bottom{border-top:1px solid var(--color-border);padding-top:16px;text-align:center;color:var(--color-text-tertiary);font-size:13px;max-width:800px;margin:0 auto}
+.footer-bottom a{color:var(--color-text-secondary)}
+.footer-bottom a:hover{color:var(--color-text-primary)}
 
 .kbd{display:inline-block;padding:1px 5px;border:1px solid var(--color-border);border-radius:var(--radius-sm);font-size:11px;font-family:var(--font-mono);background:var(--color-bg-tertiary);color:var(--color-text-tertiary);line-height:1.4}
 
@@ -256,14 +284,34 @@ button{font-family:inherit;cursor:pointer;border:none;background:transparent}
 </head>
 <body>
 
-<header class="site-header">
-  <a href="/" class="logo" aria-label="Hook0 Play home">
+<header class="site-header" style="position:relative">
+  <a href="https://www.hook0.com" class="logo" aria-label="Hook0 home" rel="noopener">
     <svg viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
       <rect width="512" height="512" rx="96" fill="#22c55e"/>
       <path d="M256 96c-66.3 0-120 53.7-120 120 0 46.4 26.3 86.6 64.8 106.6L200 416h112l-0.8-93.4C349.7 302.6 376 262.4 376 216c0-66.3-53.7-120-120-120zm0 184c-35.3 0-64-28.7-64-64s28.7-64 64-64 64 28.7 64 64-28.7 64-64 64z" fill="#fff"/>
     </svg>
     Hook0 <span>Play</span>
   </a>
+  <div class="header-sep"></div>
+  <nav class="header-nav" data-test="header-nav">
+    <a href="https://documentation.hook0.com" rel="noopener">Docs</a>
+    <a href="https://www.hook0.com/#pricing" rel="noopener">Pricing</a>
+  </nav>
+  <div class="header-sep"></div>
+  <div class="header-auth" data-test="header-auth">
+    <a href="https://app.hook0.com/" class="btn btn-ghost btn-sm" rel="noopener" data-test="login-link">Login</a>
+    <a href="https://app.hook0.com/register" class="btn-cta" rel="noopener" data-test="register-btn">Get Started &rarr;</a>
+  </div>
+  <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Open navigation menu" data-test="mobile-menu-btn">
+    <span><i></i><i></i><i></i></span>
+  </button>
+  <div class="mobile-menu" id="mobileMenu" data-test="mobile-menu">
+    <a href="https://documentation.hook0.com" rel="noopener">Docs</a>
+    <a href="https://www.hook0.com/#pricing" rel="noopener">Pricing</a>
+    <div class="mobile-sep"></div>
+    <a href="https://app.hook0.com/" rel="noopener" data-test="mobile-login-link">Login</a>
+    <a href="https://app.hook0.com/register" class="btn-cta" rel="noopener" data-test="mobile-register-btn">Get Started &rarr;</a>
+  </div>
   <div class="header-actions">
     <div class="conn-status" id="connStatus" role="alert" aria-live="polite" data-test="connection-status">
       <span class="conn-dot" id="connDot"></span>
@@ -392,13 +440,32 @@ button{font-family:inherit;cursor:pointer;border:none;background:transparent}
 </section>
 
 <footer class="site-footer">
-  <nav aria-label="Footer navigation">
-    <a href="https://www.hook0.com" rel="noopener">hook0.com</a>
-    <a href="https://documentation.hook0.com" rel="noopener">Documentation</a>
-    <a href="https://github.com/hook0/hook0" rel="noopener">GitHub</a>
-    <a href="https://documentation.hook0.com/reference/sdk" rel="noopener">CLI</a>
-  </nav>
-  <p>Hook0 &mdash; Open-source webhook infrastructure</p>
+  <div class="footer-grid">
+    <div class="footer-col">
+      <h4>Product</h4>
+      <a href="https://www.hook0.com" rel="noopener">hook0.com</a>
+      <a href="https://www.hook0.com/#pricing" rel="noopener">Pricing</a>
+      <a href="https://documentation.hook0.com" rel="noopener">Documentation</a>
+      <a href="https://documentation.hook0.com/api" rel="noopener">API Reference</a>
+      <a href="https://status.hook0.com" rel="noopener">Status</a>
+    </div>
+    <div class="footer-col">
+      <h4>Community</h4>
+      <a href="https://github.com/hook0/hook0" rel="noopener">GitHub</a>
+      <a href="https://www.hook0.com/community" rel="noopener">Discord</a>
+      <a href="https://twitter.com/hook0_" rel="noopener">Twitter/X</a>
+      <a href="https://www.linkedin.com/company/hook0" rel="noopener">LinkedIn</a>
+    </div>
+    <div class="footer-col">
+      <h4>Legal</h4>
+      <a href="https://www.hook0.com/privacy-policy" rel="noopener">Privacy Policy</a>
+      <a href="https://www.hook0.com/terms" rel="noopener">Terms of Service</a>
+      <a href="mailto:support@hook0.com">Contact</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>Hook0 Play &mdash; Free webhook tester by <a href="https://www.hook0.com" rel="noopener">Hook0</a>. Open source, no tracking.</p>
+  </div>
 </footer>
 
 <noscript>
@@ -1038,6 +1105,30 @@ setInterval(function() {
     }
   }
 }, 10000);
+
+/* Mobile menu */
+var mobileMenuBtn = document.getElementById("mobileMenuBtn");
+var mobileMenu = document.getElementById("mobileMenu");
+
+mobileMenuBtn.addEventListener("click", function(e) {
+  e.stopPropagation();
+  mobileMenu.classList.toggle("open");
+  mobileMenuBtn.setAttribute("aria-expanded", mobileMenu.classList.contains("open") ? "true" : "false");
+});
+
+document.addEventListener("click", function(e) {
+  if (!mobileMenu.contains(e.target) && e.target !== mobileMenuBtn) {
+    mobileMenu.classList.remove("open");
+    mobileMenuBtn.setAttribute("aria-expanded", "false");
+  }
+});
+
+document.addEventListener("keydown", function(e) {
+  if (e.key === "Escape" && mobileMenu.classList.contains("open")) {
+    mobileMenu.classList.remove("open");
+    mobileMenuBtn.setAttribute("aria-expanded", "false");
+  }
+});
 
 /* Init */
 initTheme();
