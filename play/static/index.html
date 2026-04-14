@@ -736,9 +736,13 @@ function addWebhookToFeed(wh, pulse) {
   if (state.webhookMap[wh.id]) return;
   state.webhookMap[wh.id] = wh;
   state.webhooks.unshift(wh);
+  var isFirst = state.webhooks.length === 1;
   renderFeed();
   if (pulse && dom.feedList.firstChild) {
     dom.feedList.firstChild.classList.add("pulse");
+  }
+  if (isFirst) {
+    selectWebhook(wh.id);
   }
 }
 
