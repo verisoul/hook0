@@ -2084,3 +2084,150 @@ async fn test_e2e_generate_token_post_webhook_verify_via_api() {
     assert_eq!(decoded_body["event"], "order.created");
     assert_eq!(decoded_body["data"]["order_id"], "ORD-42");
 }
+
+// ============================================================================
+// Content Negotiation Tests
+// ============================================================================
+
+#[tokio::test]
+async fn test_content_negotiation_html_accept_returns_html() {
+    let (addr, _state) = start_test_server().await;
+    let client = Client::new();
+
+    let response = client
+        .get(format!("http://{}/", addr))
+        .header("accept", "text/html")
+        .send()
+        .await
+        .expect("Request failed");
+
+    assert_eq!(response.status(), 200);
+    let content_type = response
+        .headers()
+        .get("content-type")
+        .expect("Missing content-type header")
+        .to_str()
+        .unwrap();
+    assert!(
+        content_type.contains("text/html"),
+        "Expected text/html content-type, got: {}",
+        content_type
+    );
+    let body = response.text().await.unwrap();
+    assert!(
+        body.contains("<html") || body.contains("<!DOCTYPE") || body.contains("<!doctype"),
+        "Response should contain HTML markup"
+    );
+}
+
+#[tokio::test]
+async fn test_content_negotiation_json_accept_returns_json() {
+    let (addr, _state) = start_test_server().await;
+    let client = Client::new();
+
+    let response = client
+        .get(format!("http://{}/", addr))
+        .header("accept", "application/json")
+        .send()
+        .await
+        .expect("Request failed");
+
+    assert_eq!(response.status(), 200);
+    let content_type = response
+        .headers()
+        .get("content-type")
+        .expect("Missing content-type header")
+        .to_str()
+        .unwrap();
+    assert!(
+        content_type.contains("application/json"),
+        "Expected application/json content-type, got: {}",
+        content_type
+    );
+    let body: Value = response.json().await.expect("Response should be valid JSON");
+    assert_eq!(body["name"], "Hook0 Play");
+    assert!(body["description"].is_string());
+    assert!(body["docs"].is_string());
+    assert!(body["ws"].is_string());
+}
+
+#[tokio::test]
+async fn test_content_negotiation_wildcard_accept_returns_html() {
+    let (addr, _state) = start_test_server().await;
+    let client = Client::new();
+
+    let response = client
+        .get(format!("http://{}/", addr))
+        .header("accept", "*/*")
+        .send()
+        .await
+        .expect("Request failed");
+
+    assert_eq!(response.status(), 200);
+    let content_type = response
+        .headers()
+        .get("content-type")
+        .expect("Missing content-type header")
+        .to_str()
+        .unwrap();
+    assert!(
+        content_type.contains("text/html"),
+        "Wildcard accept should return HTML by default, got: {}",
+        content_type
+    );
+}
+
+#[tokio::test]
+async fn test_content_negotiation_both_html_and_json_prefers_html() {
+    let (addr, _state) = start_test_server().await;
+    let client = Client::new();
+
+    // When Accept includes both text/html and application/json, HTML wins
+    let response = client
+        .get(format!("http://{}/", addr))
+        .header("accept", "text/html, application/json")
+        .send()
+        .await
+        .expect("Request failed");
+
+    assert_eq!(response.status(), 200);
+    let content_type = response
+        .headers()
+        .get("content-type")
+        .expect("Missing content-type header")
+        .to_str()
+        .unwrap();
+    assert!(
+        content_type.contains("text/html"),
+        "When both text/html and application/json are accepted, HTML should win, got: {}",
+        content_type
+    );
+}
+
+#[tokio::test]
+async fn test_content_negotiation_no_accept_header_returns_html() {
+    let (addr, _state) = start_test_server().await;
+
+    // Use hyper directly to avoid reqwest adding a default Accept header
+    let response = Client::builder()
+        .build()
+        .expect("Failed to build client")
+        .get(format!("http://{}/", addr))
+        .header("accept", "")
+        .send()
+        .await
+        .expect("Request failed");
+
+    assert_eq!(response.status(), 200);
+    let content_type = response
+        .headers()
+        .get("content-type")
+        .expect("Missing content-type header")
+        .to_str()
+        .unwrap();
+    assert!(
+        content_type.contains("text/html"),
+        "No/empty accept header should default to HTML, got: {}",
+        content_type
+    );
+}

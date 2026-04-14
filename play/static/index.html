@@ -265,12 +265,12 @@ button{font-family:inherit;cursor:pointer;border:none;background:transparent}
     Hook0 <span>Play</span>
   </a>
   <div class="header-actions">
-    <div class="conn-status" id="connStatus" role="alert" aria-live="polite">
+    <div class="conn-status" id="connStatus" role="alert" aria-live="polite" data-test="connection-status">
       <span class="conn-dot" id="connDot"></span>
       <span id="connLabel">Connecting</span>
     </div>
-    <button class="btn btn-primary btn-sm" id="btnNew" aria-label="Generate new webhook URL">New URL</button>
-    <button class="btn-ghost btn-sm" id="btnTheme" aria-label="Toggle light/dark theme" style="display:inline-flex;align-items:center;padding:6px">
+    <button class="btn btn-primary btn-sm" id="btnNew" aria-label="Generate new webhook URL" data-test="new-url-btn">New URL</button>
+    <button class="btn-ghost btn-sm" id="btnTheme" aria-label="Toggle light/dark theme" style="display:inline-flex;align-items:center;padding:6px" data-test="theme-toggle-btn">
       <svg id="iconMoon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
       <svg id="iconSun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
     </button>
@@ -281,9 +281,9 @@ button{font-family:inherit;cursor:pointer;border:none;background:transparent}
   <div class="url-section">
     <div class="url-label">Your webhook URL</div>
     <div class="url-card">
-      <span class="url-text" id="webhookUrl"></span>
+      <span class="url-text" id="webhookUrl" data-test="webhook-url"></span>
       <span class="copy-feedback" id="copyFeedback">Copied!</span>
-      <button class="btn btn-secondary btn-sm" id="btnCopy" aria-label="Copy webhook URL to clipboard">
+      <button class="btn btn-secondary btn-sm" id="btnCopy" aria-label="Copy webhook URL to clipboard" data-test="url-copy-btn">
         <svg id="iconCopy" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
         <svg id="iconCheck" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;color:var(--color-success)"><polyline points="20 6 9 17 4 12"/></svg>
         Copy
@@ -293,17 +293,17 @@ button{font-family:inherit;cursor:pointer;border:none;background:transparent}
   </div>
 
   <div class="counter-bar">
-    <span id="webhookCounter">0 webhooks received</span>
-    <button class="btn btn-ghost btn-sm" id="btnClear" aria-label="Delete all webhooks">Clear all</button>
+    <span id="webhookCounter" data-test="webhook-counter">0 webhooks received</span>
+    <button class="btn btn-ghost btn-sm" id="btnClear" aria-label="Delete all webhooks" data-test="clear-all-btn">Clear all</button>
   </div>
 
   <div class="panels" id="panels">
     <div class="feed-panel" id="feedPanel">
-      <ul class="feed-list" id="feedList" role="listbox" aria-label="Webhook feed"></ul>
-      <div class="empty-state" id="emptyState">
+      <ul class="feed-list" id="feedList" role="listbox" aria-label="Webhook feed" data-test="webhook-feed"></ul>
+      <div class="empty-state" id="emptyState" data-test="empty-state">
         <h3>Waiting for webhooks</h3>
         <p>Send any HTTP request to the URL above and it will appear here in real-time.</p>
-        <pre id="curlExample"></pre>
+        <pre id="curlExample" data-test="curl-example"></pre>
         <div class="cli-promo">
           <h4>Test webhooks locally?</h4>
           <p style="font-size:13px;color:var(--color-text-secondary);margin:4px 0 6px">Use the Hook0 CLI to tunnel webhooks to your machine:</p>
@@ -312,21 +312,21 @@ button{font-family:inherit;cursor:pointer;border:none;background:transparent}
         </div>
       </div>
     </div>
-    <div class="detail-panel" id="detailPanel">
+    <div class="detail-panel" id="detailPanel" data-test="detail-panel">
       <div class="detail-empty" id="detailEmpty">Select a webhook to inspect its details</div>
       <div class="detail-content" id="detailContent" style="display:none"></div>
     </div>
   </div>
 </main>
 
-<div class="upsell" id="upsell" style="display:none">
+<div class="upsell" id="upsell" style="display:none" data-test="upsell-banner">
   <strong>Need to SEND webhooks?</strong>
   <span>Hook0 is an open-source webhook infrastructure for your app.</span>
   <a href="https://www.hook0.com" rel="noopener">Try Hook0 free</a>
-  <button class="dismiss" id="btnDismissUpsell" aria-label="Dismiss banner">&times;</button>
+  <button class="dismiss" id="btnDismissUpsell" aria-label="Dismiss banner" data-test="upsell-dismiss-btn">&times;</button>
 </div>
 
-<section class="seo-content" aria-label="Webhook testing guide">
+<section class="seo-content" aria-label="Webhook testing guide" data-test="seo-content">
 
 <h2>What is a Webhook Tester?</h2>
 <p>A webhook tester gives you a temporary public HTTPS URL that captures every incoming HTTP request. When a third-party service fires a webhook, the tester records the method, headers, query parameters, and body so you can examine them in a structured view. It holds every request sent to that URL until you are ready to inspect it.</p>
@@ -373,13 +373,13 @@ button{font-family:inherit;cursor:pointer;border:none;background:transparent}
 <p>Any HTTP method works -- POST, PUT, PATCH, DELETE, whatever. If you are building your own service and need to test the webhooks you send, the full <a href="https://documentation.hook0.com/tutorials/event-types-subscriptions" rel="noopener">Hook0 platform</a> handles event types, subscriptions, and delivery management.</p>
 
 <h2>Webhook Testing Questions</h2>
-<details><summary>What is a webhook tester?</summary><div><p>A webhook tester gives you a unique HTTPS URL that captures incoming HTTP requests so you can inspect headers, body, method, and query parameters in real-time. It lets you verify that Stripe, GitHub, Shopify, or any other service sends the correct payload format before you write your production handler.</p></div></details>
-<details><summary>Is Hook0 Play free?</summary><div><p>Yes. No signup, no limits. Open the page, get a URL, start receiving webhooks. The CLI tunnel for local forwarding is free too.</p></div></details>
-<details><summary>How long are webhooks stored?</summary><div><p>Webhooks are stored for up to 24 hours. Each URL keeps up to 1,000 webhooks; the oldest are evicted first when the limit is reached.</p></div></details>
-<details><summary>Is my webhook data private?</summary><div><p>Yes. There is no account, so no identity is tied to your webhook URL. Data is stored server-side and automatically deleted after 24 hours. The page loads zero client-side analytics.</p></div></details>
-<details><summary>Can I test webhooks on localhost?</summary><div><p>Yes. Install the Hook0 CLI and run <code>hook0 play listen --forward http://localhost:3000/webhooks</code>. Every request hitting your Hook0 Play URL gets relayed to your local server in real-time. See the <a href="https://documentation.hook0.com/reference/sdk" rel="noopener">CLI documentation</a> to get started.</p></div></details>
-<details><summary>What HTTP methods does Hook0 Play support?</summary><div><p>All HTTP methods: GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS, and TRACE. Any request sent to your URL is captured regardless of method.</p></div></details>
-<details><summary>Can I self-host Hook0 Play?</summary><div><p>Yes. Hook0 is open source (SSPL license). You can run the entire stack including Hook0 Play on your own infrastructure with Docker or Kubernetes. See the <a href="https://documentation.hook0.com/self-hosting" rel="noopener">self-hosting documentation</a>.</p></div></details>
+<details data-test="faq-item"><summary>What is a webhook tester?</summary><div><p>A webhook tester gives you a unique HTTPS URL that captures incoming HTTP requests so you can inspect headers, body, method, and query parameters in real-time. It lets you verify that Stripe, GitHub, Shopify, or any other service sends the correct payload format before you write your production handler.</p></div></details>
+<details data-test="faq-item"><summary>Is Hook0 Play free?</summary><div><p>Yes. No signup, no limits. Open the page, get a URL, start receiving webhooks. The CLI tunnel for local forwarding is free too.</p></div></details>
+<details data-test="faq-item"><summary>How long are webhooks stored?</summary><div><p>Webhooks are stored for up to 24 hours. Each URL keeps up to 1,000 webhooks; the oldest are evicted first when the limit is reached.</p></div></details>
+<details data-test="faq-item"><summary>Is my webhook data private?</summary><div><p>Yes. There is no account, so no identity is tied to your webhook URL. Data is stored server-side and automatically deleted after 24 hours. The page loads zero client-side analytics.</p></div></details>
+<details data-test="faq-item"><summary>Can I test webhooks on localhost?</summary><div><p>Yes. Install the Hook0 CLI and run <code>hook0 play listen --forward http://localhost:3000/webhooks</code>. Every request hitting your Hook0 Play URL gets relayed to your local server in real-time. See the <a href="https://documentation.hook0.com/reference/sdk" rel="noopener">CLI documentation</a> to get started.</p></div></details>
+<details data-test="faq-item"><summary>What HTTP methods does Hook0 Play support?</summary><div><p>All HTTP methods: GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS, and TRACE. Any request sent to your URL is captured regardless of method.</p></div></details>
+<details data-test="faq-item"><summary>Can I self-host Hook0 Play?</summary><div><p>Yes. Hook0 is open source (SSPL license). You can run the entire stack including Hook0 Play on your own infrastructure with Docker or Kubernetes. See the <a href="https://documentation.hook0.com/self-hosting" rel="noopener">self-hosting documentation</a>.</p></div></details>
 
 <h2>Go Further with Hook0</h2>
 <p>Hook0 Play is the <em>receive</em> side of webhooks. When you need to <em>send</em> webhooks from your own application, the full Hook0 platform handles routing, retries, event types, and delivery guarantees -- so you can skip building that infrastructure yourself.</p>
@@ -613,6 +613,7 @@ function renderFeed() {
     li.setAttribute("aria-selected", state.selectedId === wh.id ? "true" : "false");
     li.setAttribute("data-id", wh.id);
     li.setAttribute("tabindex", "0");
+    li.setAttribute("data-test", "webhook-entry");
 
     var badge = document.createElement("span");
     badge.className = "method-badge method-" + (wh.method || "GET");
@@ -723,19 +724,19 @@ function renderDetail(wh, tab) {
   html += '</div>';
   html += '<div style="display:flex;gap:6px;flex-shrink:0">';
   if (window.innerWidth < 768) {
-    html += '<button class="btn btn-ghost btn-sm" data-action="close" aria-label="Close detail view">&#x2715; Close</button>';
+    html += '<button class="btn btn-ghost btn-sm" data-action="close" aria-label="Close detail view" data-test="detail-close-btn">&#x2715; Close</button>';
   }
-  html += '<button class="btn btn-danger btn-sm" data-action="delete" data-id="' + escapeHtml(wh.id) + '" aria-label="Delete this webhook">Delete</button>';
+  html += '<button class="btn btn-danger btn-sm" data-action="delete" data-id="' + escapeHtml(wh.id) + '" aria-label="Delete this webhook" data-test="webhook-delete-btn">Delete</button>';
   html += '</div></div>';
 
   html += '<div class="detail-tabs">';
-  html += '<button class="detail-tab' + (tab === "request" ? " active" : "") + '" data-tab="request">Request</button>';
-  html += '<button class="detail-tab' + (tab === "raw" ? " active" : "") + '" data-tab="raw">Raw</button>';
+  html += '<button class="detail-tab' + (tab === "request" ? " active" : "") + '" data-tab="request" data-test="tab-request">Request</button>';
+  html += '<button class="detail-tab' + (tab === "raw" ? " active" : "") + '" data-tab="raw" data-test="tab-raw">Raw</button>';
   html += '</div>';
 
   if (tab === "request") {
     if (wh.headers && Object.keys(wh.headers).length > 0) {
-      html += '<div class="detail-section"><h4>Headers</h4><table class="headers-table">';
+      html += '<div class="detail-section"><h4>Headers</h4><table class="headers-table" data-test="headers-table">';
       var keys = Object.keys(wh.headers).sort();
       for (var i = 0; i < keys.length; i++) {
         html += '<tr><td>' + escapeHtml(keys[i]) + '</td><td>' + escapeHtml(wh.headers[keys[i]]) + '</td></tr>';
@@ -747,7 +748,7 @@ function renderDetail(wh, tab) {
       html += '<div class="detail-section"><h4>Body';
       if (ct) html += ' <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:11px;color:var(--color-text-tertiary)">(' + escapeHtml(ct) + ')</span>';
       html += '</h4>';
-      html += '<div class="body-display"><pre>';
+      html += '<div class="body-display" data-test="body-display"><pre>';
 
       if (ct.indexOf("json") !== -1) {
         try {
@@ -789,7 +790,7 @@ function renderDetail(wh, tab) {
   } else {
     html += '<div class="detail-section"><h4>Raw body (base64)</h4>';
     html += '<div class="body-display"><pre>' + escapeHtml(wh.body || "(empty)") + '</pre></div>';
-    html += '<button class="btn btn-secondary btn-sm" data-action="copy-raw" style="margin-top:8px" aria-label="Copy raw body to clipboard">Copy raw body</button>';
+    html += '<button class="btn btn-secondary btn-sm" data-action="copy-raw" style="margin-top:8px" aria-label="Copy raw body to clipboard" data-test="copy-raw-btn">Copy raw body</button>';
     html += '</div>';
   }
 

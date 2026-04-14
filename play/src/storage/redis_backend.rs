@@ -675,3 +675,114 @@ impl WebhookStorageBackend for RedisStorage {
         self.encryption = Some(StorageEncryption::new(key));
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_session_key_format() {
+        let key = RedisStorage::session_key("c_abc123");
+        assert_eq!(key, "session:c_abc123");
+    }
+
+    #[test]
+    fn test_session_key_with_special_chars() {
+        let key = RedisStorage::session_key("c_ABCdef0123456789");
+        assert_eq!(key, "session:c_ABCdef0123456789");
+    }
+
+    #[test]
+    fn test_webhooks_list_key_format() {
+        let key = RedisStorage::webhooks_list_key("c_mytoken");
+        assert_eq!(key, "webhooks:c_mytoken");
+    }
+
+    #[test]
+    fn test_webhook_key_format() {
+        let key = RedisStorage::webhook_key("c_mytoken", "wh-12345");
+        assert_eq!(key, "webhook:c_mytoken:wh-12345");
+    }
+
+    #[test]
+    fn test_webhook_key_uniqueness() {
+        let key1 = RedisStorage::webhook_key("token_a", "id1");
+        let key2 = RedisStorage::webhook_key("token_a", "id2");
+        let key3 = RedisStorage::webhook_key("token_b", "id1");
+        assert_ne!(key1, key2);
+        assert_ne!(key1, key3);
+        assert_ne!(key2, key3);
+    }
+
+    #[test]
+    fn test_serialize_headers_roundtrip() {
+        let mut headers = HashMap::new();
+        headers.insert("content-type".to_string(), "application/json".to_string());
+        headers.insert("x-custom".to_string(), "value".to_string());
+
+        let serialized = RedisStorage::serialize_headers(&headers);
+        let deserialized = RedisStorage::deserialize_headers(&serialized);
+
+        assert_eq!(headers, deserialized);
+    }
+
+    #[test]
+    fn test_serialize_headers_empty() {
+        let headers = HashMap::new();
+        let serialized = RedisStorage::serialize_headers(&headers);
+        let deserialized = RedisStorage::deserialize_headers(&serialized);
+        assert_eq!(headers, deserialized);
+    }
+
+    #[test]
+    fn test_deserialize_headers_invalid_json() {
+        let result = RedisStorage::deserialize_headers("not json");
+        assert!(result.is_empty());
+    }
+
+    #[test]
+    fn test_deserialize_headers_empty_object() {
+        let result = RedisStorage::deserialize_headers("{}");
+        assert!(result.is_empty());
+    }
+
+    #[test]
+    fn test_serialize_headers_special_characters() {
+        let mut headers = HashMap::new();
+        headers.insert("key".to_string(), "value with \"quotes\" and \\slashes".to_string());
+        headers.insert("unicode".to_string(), "valeur avec des accents: e\u{0301}".to_string());
+
+        let serialized = RedisStorage::serialize_headers(&headers);
+        let deserialized = RedisStorage::deserialize_headers(&serialized);
+
+        assert_eq!(headers, deserialized);
+    }
+
+    #[test]
+    fn test_key_ttl_constant() {
+        assert_eq!(KEY_TTL_SECONDS, 86400, "TTL should be 24 hours in seconds");
+    }
+
+    #[test]
+    fn test_max_webhooks_per_token_constant() {
+        assert_eq!(MAX_WEBHOOKS_PER_TOKEN, 1000);
+    }
+
+    #[test]
+    fn test_keys_are_namespaced_and_distinct() {
+        let token = "c_test";
+        let session = RedisStorage::session_key(token);
+        let list = RedisStorage::webhooks_list_key(token);
+        let webhook = RedisStorage::webhook_key(token, "id1");
+
+        // All keys for the same token must be distinct
+        assert_ne!(session, list);
+        assert_ne!(session, webhook);
+        assert_ne!(list, webhook);
+
+        // All keys use the token as part of the key
+        assert!(session.contains(token));
+        assert!(list.contains(token));
+        assert!(webhook.contains(token));
+    }
+}
