@@ -294,76 +294,6 @@ pub fn create_app(state: Arc<AppState>) -> axum::Router {
         .with_state(state)
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_build_csp_https_base_url_produces_wss() {
-        let csp = build_csp("https://play.hook0.com");
-        assert!(
-            csp.contains("wss://play.hook0.com"),
-            "CSP should contain wss:// for HTTPS base URL, got: {}",
-            csp
-        );
-        assert!(csp.contains("'self'"));
-        assert!(csp.contains("ws://localhost:*"));
-    }
-
-    #[test]
-    fn test_build_csp_http_base_url_with_port_produces_ws_with_port() {
-        let csp = build_csp("http://localhost:3000");
-        assert!(
-            csp.contains("ws://localhost:3000"),
-            "CSP should contain ws://localhost:3000, got: {}",
-            csp
-        );
-        assert!(csp.contains("'self'"));
-    }
-
-    #[test]
-    fn test_build_csp_https_base_url_with_port_produces_wss_with_port() {
-        let csp = build_csp("https://play.hook0.com:8443");
-        assert!(
-            csp.contains("wss://play.hook0.com:8443"),
-            "CSP should contain wss://play.hook0.com:8443, got: {}",
-            csp
-        );
-        assert!(csp.contains("ws://localhost:*"));
-    }
-
-    #[test]
-    fn test_build_csp_invalid_url_falls_back_to_self() {
-        let csp = build_csp("not a valid url");
-        assert!(
-            csp.contains("'self' ws://localhost:*"),
-            "CSP should fall back to 'self' ws://localhost:* for invalid URL, got: {}",
-            csp
-        );
-    }
-
-    #[test]
-    fn test_build_csp_http_no_port_falls_back_to_localhost() {
-        let csp = build_csp("http://example.com");
-        // http with no port: falls through to "'self' ws://localhost:*"
-        assert!(
-            csp.contains("'self' ws://localhost:*"),
-            "CSP for http://example.com (no port) should contain 'self' ws://localhost:*, got: {}",
-            csp
-        );
-    }
-
-    #[test]
-    fn test_build_csp_contains_all_directives() {
-        let csp = build_csp("https://play.hook0.com");
-        assert!(csp.contains("default-src 'none'"));
-        assert!(csp.contains("script-src 'self' 'unsafe-inline'"));
-        assert!(csp.contains("style-src 'self' 'unsafe-inline'"));
-        assert!(csp.contains("img-src 'self' data:"));
-        assert!(csp.contains("font-src 'none'"));
-    }
-}
-
 /// Start background cleanup tasks
 pub fn start_background_tasks(state: Arc<AppState>) {
     let state_clone = state.clone();
@@ -482,4 +412,73 @@ async fn view_token(
             "api_url": format!("{}/api/tokens/{}/webhooks", state.base_url, token)
         })),
     )
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_build_csp_https_base_url_produces_wss() {
+        let csp = build_csp("https://play.hook0.com");
+        assert!(
+            csp.contains("wss://play.hook0.com"),
+            "CSP should contain wss:// for HTTPS base URL, got: {}",
+            csp
+        );
+        assert!(csp.contains("'self'"));
+        assert!(csp.contains("ws://localhost:*"));
+    }
+
+    #[test]
+    fn test_build_csp_http_base_url_with_port_produces_ws_with_port() {
+        let csp = build_csp("http://localhost:3000");
+        assert!(
+            csp.contains("ws://localhost:3000"),
+            "CSP should contain ws://localhost:3000, got: {}",
+            csp
+        );
+        assert!(csp.contains("'self'"));
+    }
+
+    #[test]
+    fn test_build_csp_https_base_url_with_port_produces_wss_with_port() {
+        let csp = build_csp("https://play.hook0.com:8443");
+        assert!(
+            csp.contains("wss://play.hook0.com:8443"),
+            "CSP should contain wss://play.hook0.com:8443, got: {}",
+            csp
+        );
+        assert!(csp.contains("ws://localhost:*"));
+    }
+
+    #[test]
+    fn test_build_csp_invalid_url_falls_back_to_self() {
+        let csp = build_csp("not a valid url");
+        assert!(
+            csp.contains("'self' ws://localhost:*"),
+            "CSP should fall back to 'self' ws://localhost:* for invalid URL, got: {}",
+            csp
+        );
+    }
+
+    #[test]
+    fn test_build_csp_http_no_port_falls_back_to_localhost() {
+        let csp = build_csp("http://example.com");
+        assert!(
+            csp.contains("'self' ws://localhost:*"),
+            "CSP for http://example.com (no port) should contain 'self' ws://localhost:*, got: {}",
+            csp
+        );
+    }
+
+    #[test]
+    fn test_build_csp_contains_all_directives() {
+        let csp = build_csp("https://play.hook0.com");
+        assert!(csp.contains("default-src 'none'"));
+        assert!(csp.contains("script-src 'self' 'unsafe-inline'"));
+        assert!(csp.contains("style-src 'self' 'unsafe-inline'"));
+        assert!(csp.contains("img-src 'self' data:"));
+        assert!(csp.contains("font-src 'none'"));
+    }
 }
