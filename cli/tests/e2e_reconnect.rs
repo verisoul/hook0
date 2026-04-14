@@ -9,6 +9,7 @@
 mod helpers;
 
 use axum::http::StatusCode;
+use hook0_play::storage::WebhookStorageBackend;
 use std::time::Duration;
 use tokio::time::timeout;
 
