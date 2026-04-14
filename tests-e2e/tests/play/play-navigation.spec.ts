@@ -104,6 +104,12 @@ test.describe("Play Navigation - Mobile Menu", () => {
     await expect(
       mobileMenu.locator('[data-test="mobile-register-btn"]'),
     ).toBeVisible();
+
+    // Visual proof: screenshot with menu open
+    await page.screenshot({
+      path: "test-results/mobile-menu-open.png",
+      fullPage: true,
+    });
   });
 
   test("pressing Escape closes the mobile menu", async ({ page }) => {

@@ -168,6 +168,8 @@ button{font-family:inherit;cursor:pointer;border:none;background:transparent}
 .conn-dot.green{background:var(--color-success)}
 .conn-dot.red{background:var(--color-danger)}
 .conn-dot.yellow{background:var(--color-warning)}
+.conn-refresh{background:none;border:1px solid var(--color-border);color:var(--color-text-secondary);font-size:11px;padding:2px 8px;border-radius:var(--radius-sm);cursor:pointer;margin-left:4px}
+.conn-refresh:hover{color:var(--color-text-primary);border-color:var(--color-primary)}
 
 .url-section{padding:16px 20px;border-bottom:1px solid var(--color-border);background:var(--color-bg-secondary)}
 .url-label{font-size:13px;color:var(--color-text-secondary);margin-bottom:6px;font-weight:500}
@@ -514,6 +516,7 @@ var dom = {
   btnTheme: document.getElementById("btnTheme"),
   iconMoon: document.getElementById("iconMoon"),
   iconSun: document.getElementById("iconSun"),
+  connStatus: document.getElementById("connStatus"),
   connDot: document.getElementById("connDot"),
   connLabel: document.getElementById("connLabel"),
   feedList: document.getElementById("feedList"),
@@ -631,9 +634,23 @@ dom.btnTheme.addEventListener("click", function() {
 });
 
 /* Connection status */
-function setConnStatus(color, label) {
+function setConnStatus(color, label, showRefresh) {
   dom.connDot.className = "conn-dot " + color;
   dom.connLabel.textContent = label;
+  var existing = dom.connStatus.querySelector(".conn-refresh");
+  if (existing) existing.remove();
+  if (showRefresh) {
+    var btn = document.createElement("button");
+    btn.className = "conn-refresh";
+    btn.textContent = "Retry now";
+    btn.setAttribute("data-test", "retry-btn");
+    btn.addEventListener("click", function() {
+      clearTimeout(state.reconnectTimer);
+      state.reconnectAttempt = 0;
+      connectWs();
+    });
+    dom.connStatus.appendChild(btn);
+  }
 }
 
 /* URL display */
@@ -980,7 +997,7 @@ function connectWs() {
     state.wsConnected = false;
     clearInterval(state.pingTimer);
     if (!state.polling) {
-      setConnStatus("red", "Disconnected");
+      setConnStatus("red", "Disconnected — retrying...", true);
       scheduleReconnect();
     }
   };
@@ -991,7 +1008,7 @@ function connectWs() {
 function scheduleReconnect() {
   var delay = RECONNECT_DELAYS[Math.min(state.reconnectAttempt, RECONNECT_DELAYS.length - 1)];
   state.reconnectAttempt++;
-  setConnStatus("yellow", "Reconnecting in " + (delay / 1000) + "s");
+  setConnStatus("yellow", "Reconnecting (attempt " + state.reconnectAttempt + ")...", true);
   state.reconnectTimer = setTimeout(function() { connectWs(); }, delay);
 }
 
