@@ -41,20 +41,19 @@ test.describe("Play Keyboard Shortcuts", () => {
     );
     const webhookUrl = `${baseURL}/in/${token}/`;
 
-    // Send 3 webhooks to have items to navigate
+    // Send first webhook and wait for auto-select
     await page.request.get(webhookUrl);
     await expect(page.locator(".feed-item")).toHaveCount(1, { timeout: 10000 });
+    await expect(page.locator(".feed-item.selected")).toHaveCount(1, {
+      timeout: 5000,
+    });
 
+    // Send 2 more webhooks
     await page.request.post(webhookUrl, { data: "second" });
     await expect(page.locator(".feed-item")).toHaveCount(2, { timeout: 10000 });
 
     await page.request.put(webhookUrl, { data: "third" });
     await expect(page.locator(".feed-item")).toHaveCount(3, { timeout: 10000 });
-
-    // The first webhook is auto-selected (index 0)
-    await expect(page.locator(".feed-item").first()).toHaveClass(/selected/, {
-      timeout: 5000,
-    });
 
     // Press 'j' to move down to the second item (index 1)
     await page.keyboard.press("j");
