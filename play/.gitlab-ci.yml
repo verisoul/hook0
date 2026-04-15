@@ -43,12 +43,14 @@ play.e2e-playwright:
         - tests-e2e/playwright.play.config.ts
         - Cargo.*
   before_script:
+    - apt-get update -qq && apt-get install -y -qq build-essential pkg-config libssl-dev >/dev/null 2>&1
     - RUST_TOOLCHAIN=$(echo "$RUST_VERSION" | sed 's/-.*//')
     - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain "$RUST_TOOLCHAIN"
-    - export PATH="$HOME/.cargo/bin:$PATH"
+    - . "$HOME/.cargo/env"
     - rustc --version && cargo --version
     - cd tests-e2e && npm ci && cd ..
   script:
+    - . "$HOME/.cargo/env"
     # Build and start play server in background
     - cargo build -p hook0-play --release
     - HOOKS_BASE_URL=http://localhost:3030 ./target/release/hook0-play &
