@@ -43,7 +43,8 @@ play.e2e-playwright:
         - tests-e2e/playwright.play.config.ts
         - Cargo.*
   before_script:
-    - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain $RUST_VERSION
+    - RUST_TOOLCHAIN=$(echo "$RUST_VERSION" | sed 's/-.*//')
+    - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain "$RUST_TOOLCHAIN"
     - export PATH="$HOME/.cargo/bin:$PATH"
     - rustc --version && cargo --version
     - cd tests-e2e && npm ci && cd ..
