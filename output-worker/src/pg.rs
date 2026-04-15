@@ -18,12 +18,23 @@ use crate::{
 };
 use hook0_protobuf::{ObjectStorageResponse, RequestAttempt};
 use hook0_sentry_integration::log_object_storage_error_with_context;
+use uuid::Uuid;
 
 /// Minimum duration to wait when there are no unprocessed items to pick
 const MIN_POLLING_SLEEP: Duration = Duration::from_secs(1);
 
 /// Maximum duration to wait when there are no unprocessed items to pick
 const MAX_POLLING_SLEEP: Duration = Duration::from_secs(10);
+
+/// Lightweight struct for the lock-acquisition query (no payload/event joins).
+struct PendingAttemptRef {
+    request_attempt_id: Uuid,
+    event_id: Uuid,
+    subscription_id: Uuid,
+    created_at: chrono::DateTime<Utc>,
+    retry_count: i16,
+    delay_until: Option<chrono::DateTime<Utc>>,
+}
 
 #[allow(clippy::too_many_arguments)]
 pub async fn look_for_work(
@@ -42,34 +53,25 @@ pub async fn look_for_work(
         trace!(unit_id, "Fetching next unprocessed request attempt...");
         let mut tx = pool.begin().await?;
 
+        // Phase 1: Lightweight lock acquisition -- no event/target_http joins.
+        // This is the hot path that benefits from SKIP LOCKED being fast.
         let fetch_start = Instant::now();
-        let next_attempt = query_as!(
-            RequestAttemptWithOptionalPayload,
+        let locked_ref = query_as!(
+            PendingAttemptRef,
             "
                 SELECT
-                    e.application__id AS application_id,
                     ra.request_attempt__id AS request_attempt_id,
                     ra.event__id AS event_id,
-                    e.received_at AS event_received_at,
                     ra.subscription__id AS subscription_id,
                     ra.created_at,
                     ra.retry_count,
-                    ra.delay_until,
-                    t_http.method AS http_method,
-                    t_http.url AS http_url,
-                    t_http.headers AS http_headers,
-                    e.event_type__name AS event_type_name,
-                    e.payload AS payload,
-                    e.payload_content_type AS payload_content_type,
-                    s.secret
+                    ra.delay_until
                 FROM webhook.request_attempt AS ra
                 INNER JOIN webhook.subscription AS s ON s.subscription__id = ra.subscription__id
                 LEFT JOIN webhook.subscription__worker AS sw ON sw.subscription__id = s.subscription__id
                 INNER JOIN event.application AS a ON a.application__id = s.application__id AND a.deleted_at IS NULL
                 INNER JOIN iam.organization AS o ON o.organization__id = a.organization__id
                 LEFT JOIN iam.organization__worker AS ow ON ow.organization__id = o.organization__id AND ow.default = true
-                INNER JOIN webhook.target_http AS t_http ON t_http.target__id = s.target__id
-                INNER JOIN event.event AS e ON e.event__id = ra.event__id
                 WHERE
                     ra.succeeded_at IS NULL
                     AND ra.failed_at IS NULL
@@ -92,6 +94,42 @@ pub async fn look_for_work(
         .await?;
         stats.record_db_fetch(fetch_start.elapsed());
 
+        // Phase 2: If we locked a row, fetch the full payload and delivery target.
+        // This is a single-row PK lookup with joins -- always fast.
+        let next_attempt = if let Some(ref locked) = locked_ref {
+            query_as!(
+                RequestAttemptWithOptionalPayload,
+                "
+                    SELECT
+                        e.application__id AS application_id,
+                        ra.request_attempt__id AS request_attempt_id,
+                        ra.event__id AS event_id,
+                        e.received_at AS event_received_at,
+                        ra.subscription__id AS subscription_id,
+                        ra.created_at,
+                        ra.retry_count,
+                        ra.delay_until,
+                        t_http.method AS http_method,
+                        t_http.url AS http_url,
+                        t_http.headers AS http_headers,
+                        e.event_type__name AS event_type_name,
+                        e.payload AS payload,
+                        e.payload_content_type AS payload_content_type,
+                        s.secret
+                    FROM webhook.request_attempt AS ra
+                    INNER JOIN webhook.subscription AS s ON s.subscription__id = ra.subscription__id
+                    INNER JOIN webhook.target_http AS t_http ON t_http.target__id = s.target__id
+                    INNER JOIN event.event AS e ON e.event__id = ra.event__id
+                    WHERE ra.request_attempt__id = $1
+                ",
+                locked.request_attempt_id,
+            )
+            .fetch_optional(&mut *tx)
+            .await?
+        } else {
+            None
+        };
+
         if let Some(attempt) = next_attempt {
             let _slot_guard = stats.slot_enter();
 
@@ -100,7 +138,8 @@ pub async fn look_for_work(
                 .delay_until
                 .unwrap_or(attempt.created_at)
                 .max(attempt.created_at);
-            if let Ok(lag) = (Utc::now() - eligible_at).to_std() {
+            let lag_delta = Utc::now().signed_duration_since(eligible_at);
+            if let Ok(lag) = lag_delta.to_std() {
                 stats.record_lag(lag);
             }
 
